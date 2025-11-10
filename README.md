@@ -126,15 +126,16 @@ Connect to the backend WebSocket at `ws://localhost:8080/chat`. Refer to the cha
 
 ### Submission Process
 
-1. **Fork this repository** to your personal GitHub account
-2. **Complete the technical test** following all requirements above
-3. **Create a Pull Request** back to this repository with:
-   - A clear title: `[Your Name] - Senior Frontend Technical Test`
-   - Include a description covering:
+1. **Fork this repository** to your personal GitHub account.
+2. **Complete the technical test in your fork**: create a feature branch (e.g. `feat/your-name-chat-test`) and implement your solution there.
+3. **Open a Pull Request on your fork** (from your feature branch into your fork’s `main`):
+   - Title: `[Your Name] - Senior Frontend Technical Test`
+   - PR description must include at least:
      - Time spent on the project
      - Key technical decisions and trade-offs
      - Any assumptions made
      - Instructions to run your solution locally
+4. **Share the link to your PR** on your fork with us (via email).
 
 #### What to include in your PR
 
@@ -156,7 +157,7 @@ Connect to the backend WebSocket at `ws://localhost:8080/chat`. Refer to the cha
 
 #### Review Process
 
-Once you share your Pull Request link with us:
+Once you share the Pull Request link from your fork with us:
 - **Review time**: Approximately **48 hours** for our team to evaluate your submission
 - **Review team**: At least **3 engineers** will review your code to ensure fair and thorough evaluation
 - **Next steps**: We'll communicate the next stage of the process once the review is complete
