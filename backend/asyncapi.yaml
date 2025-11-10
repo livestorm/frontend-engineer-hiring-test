@@ -1,0 +1,272 @@
+asyncapi: 3.0.0
+info:
+  title: Chat Backend WebSocket API
+  version: 1.0.0
+  description: |
+    Real-time chat server with WebSocket support for bidirectional messaging and reactions.
+    
+    User identification is automatic based on client IP address.
+    All messages are broadcast to all connected clients.
+    
+    ## Limits & Scalability
+    
+    - **Max connections**: 1000 concurrent WebSocket connections
+    - **Rate limiting**: 60 messages per minute per client
+    - **Message history**: Last 1000 messages kept in memory (FIFO)
+    - **Connection timeout**: 60 seconds without activity (ping/pong heartbeat)
+    - **Message size**: 500 characters max per message
+
+servers:
+  development:
+    host: localhost:8080
+    protocol: ws
+    description: Development server
+
+channels:
+  chat:
+    address: /ws
+    messages:
+      sendMessage:
+        $ref: '#/components/messages/SendMessage'
+      addReaction:
+        $ref: '#/components/messages/AddReaction'
+      message:
+        $ref: '#/components/messages/Message'
+      reactionUpdated:
+        $ref: '#/components/messages/ReactionUpdated'
+      error:
+        $ref: '#/components/messages/Error'
+
+operations:
+  sendMessage:
+    action: send
+    channel:
+      $ref: '#/channels/chat'
+    messages:
+      - $ref: '#/channels/chat/messages/sendMessage'
+    summary: Send a new chat message
+    description: Client sends a message that will be broadcast to all connected clients
+
+  addReaction:
+    action: send
+    channel:
+      $ref: '#/channels/chat'
+    messages:
+      - $ref: '#/channels/chat/messages/addReaction'
+    summary: Toggle reaction on a message
+    description: Add or remove a reaction. If user already reacted with this emoji, it will be removed
+
+  receiveMessage:
+    action: receive
+    channel:
+      $ref: '#/channels/chat'
+    messages:
+      - $ref: '#/channels/chat/messages/message'
+    summary: Receive new messages
+    description: Server broadcasts new messages to all connected clients. On connection, all existing messages are sent
+
+  receiveReactionUpdate:
+    action: receive
+    channel:
+      $ref: '#/channels/chat'
+    messages:
+      - $ref: '#/channels/chat/messages/reactionUpdated'
+    summary: Receive reaction updates
+    description: Server broadcasts reaction changes with the full updated message
+
+  receiveError:
+    action: receive
+    channel:
+      $ref: '#/channels/chat'
+    messages:
+      - $ref: '#/channels/chat/messages/error'
+    summary: Receive error messages
+    description: Server sends error messages when rate limits are exceeded or validation fails
+
+components:
+  messages:
+    SendMessage:
+      name: send_message
+      title: Send Message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SendMessagePayload'
+
+    AddReaction:
+      name: add_reaction
+      title: Add Reaction
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/AddReactionPayload'
+
+    Message:
+      name: message
+      title: Message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/MessagePayload'
+
+    ReactionUpdated:
+      name: reaction_updated
+      title: Reaction Updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ReactionUpdatedPayload'
+
+    Error:
+      name: error
+      title: Error
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ErrorPayload'
+
+  schemas:
+    SendMessagePayload:
+      type: object
+      properties:
+        type:
+          type: string
+          const: send_message
+        data:
+          type: object
+          properties:
+            text:
+              type: string
+              maxLength: 500
+              description: Message content
+            author_name:
+              type: string
+              description: Display name for the author
+              default: Anonymous
+          required:
+            - text
+      required:
+        - type
+        - data
+
+    AddReactionPayload:
+      type: object
+      properties:
+        type:
+          type: string
+          const: add_reaction
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+              format: uuid
+              description: ID of the message to react to
+            emoji:
+              type: string
+              description: Emoji character
+          required:
+            - message_id
+            - emoji
+      required:
+        - type
+        - data
+
+    MessagePayload:
+      type: object
+      properties:
+        type:
+          type: string
+          const: message
+        data:
+          $ref: '#/components/schemas/Message'
+      required:
+        - type
+        - data
+
+    ReactionUpdatedPayload:
+      type: object
+      properties:
+        type:
+          type: string
+          const: reaction_updated
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+              format: uuid
+            emoji:
+              type: string
+            user_id:
+              type: string
+            action:
+              type: string
+              enum:
+                - added
+                - removed
+            message:
+              $ref: '#/components/schemas/Message'
+          required:
+            - message_id
+            - emoji
+            - user_id
+            - action
+            - message
+      required:
+        - type
+        - data
+
+    ErrorPayload:
+      type: object
+      properties:
+        type:
+          type: string
+          const: error
+        data:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Error message
+              examples:
+                - Rate limit exceeded. Maximum 60 messages per minute.
+                - Invalid message format
+                - message text cannot be empty
+                - message too long (max 500 characters)
+          required:
+            - error
+      required:
+        - type
+        - data
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier
+        text:
+          type: string
+          description: Message content
+        author_id:
+          type: string
+          description: User ID based on client IP
+        author_name:
+          type: string
+          description: Display name
+        created_at:
+          type: integer
+          format: int64
+          description: Unix timestamp in seconds
+        reactions:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Map of emoji to array of user IDs who reacted
+      required:
+        - id
+        - text
+        - author_id
+        - author_name
+        - created_at
+        - reactions
+

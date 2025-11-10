@@ -1,0 +1,47 @@
+name: AsyncAPI documents processing
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Generating documentation from AsyncAPI
+      uses: asyncapi/cli@v3.5.2
+      with:
+        filepath: backend/asyncapi.yaml
+        template: '@asyncapi/markdown-template@latest'
+        output: generated-html
+    
+    - name: Rename to index for Jekyll
+      run: |
+        sudo chown -R $(whoami) generated-html
+        mv generated-html/asyncapi.md generated-html/index.md
+      
+    - name: Build with Jekyll
+      uses: actions/jekyll-build-pages@v1
+      with:
+        source: generated-html
+        destination: _site
+      
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: _site
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
