@@ -399,3 +399,6 @@ Temporary Items
 .apdisk
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#vs,Go,macOS
+
+# Added by Ross Whitehouse
+.vscode
