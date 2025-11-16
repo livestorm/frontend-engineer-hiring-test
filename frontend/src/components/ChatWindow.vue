@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, type Ref, type ComputedRef } from 'vue';
-import Header from './Header.vue';
-import Message from './Message.vue';
-import Footer from './Footer.vue';
+import ChatHeader from './ChatHeader.vue';
+import MessageItem from './MessageItem.vue';
+import ChatFooter from './ChatFooter.vue';
 import { type messageInterface } from '../types/message';
 
 const status: Ref<string> = ref('loading chat...');
@@ -19,18 +19,20 @@ onMounted(() => {
     ws.value.onmessage = ({ data }) => {
         const { type, data: messageData } = JSON.parse(data)
         switch (type) {
-            case 'message':
+            case 'message': {
                 const displayTime = new Date(messageData.created_at * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                 messages.value.push({
                     displayTime,
                     ...messageData
                 })
                 break;
-            case 'reaction_updated':
+            }
+            case 'reaction_updated': {
                 const { message_id: updatedId, emoji, user_id } = messageData;
                 const thisMessage = messages.value.find(message => message?.id === updatedId)
                 if (thisMessage) thisMessage.reactions[emoji] = [user_id, ...(thisMessage.reactions[emoji] || []), ]
                 break;
+            }
             default:
                 break;
         }
@@ -63,17 +65,17 @@ const addReact = (message_id: number, emoji: string) => {
 
 <template>
     <div class="chatWindow">
-        <Header />
+        <ChatHeader />
         <main>
             <div v-if="!!status">{{ status }}</div>
-            <Message
+            <MessageItem
                 v-for="message in orderedMessages"
                 :key="message.id"
                 :message="message"
                 :addReact="addReact"
-            ></Message>
+            ></MessageItem>
         </main>
-        <Footer :sendMessage="sendMessage" />
+        <ChatFooter :sendMessage="sendMessage" />
     </div>
 </template>
 

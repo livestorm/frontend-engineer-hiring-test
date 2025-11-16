@@ -1,8 +1,8 @@
 import { test, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import ChatWindow from '../components/ChatWindow.vue';
-import Header from '../components/Header.vue';
-import Footer from '../components/Footer.vue';
+import ChatHeader from '../components/ChatHeader.vue';
+import ChatFooter from '../components/ChatFooter.vue';
 
 class MockWebSocket {
     onopen = vi.fn()
@@ -17,8 +17,8 @@ vi.stubGlobal('WebSocket', MockWebSocket)
 test('Component ChatWindow mounts correctly.', async () => {
     expect(ChatWindow).toBeTruthy();
     const wrapper = mount(ChatWindow);
-    expect(wrapper.findComponent(Header).exists).toBeTruthy;
-    expect(wrapper.findComponent(Footer).exists).toBeTruthy;
+    expect(wrapper.findComponent(ChatHeader).exists).toBeTruthy;
+    expect(wrapper.findComponent(ChatFooter).exists).toBeTruthy;
     expect(wrapper.text()).toContain('loading chat...')
 });
 

@@ -1,19 +1,19 @@
 import { test, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Footer from '../components/Footer.vue';
+import ChatFooter from '../components/ChatFooter.vue';
 
 let wrapper: any;
 let sendMessage = vi.fn();;
 
 beforeEach(() => {
-    expect(Footer).toBeTruthy();
+    expect(ChatFooter).toBeTruthy();
     sendMessage = vi.fn();
-    wrapper = mount(Footer, {
+    wrapper = mount(ChatFooter, {
         props: { sendMessage }
     });
 })
 
-test('Component Footer mounts correctly.', async () => {
+test('Component ChatFooter mounts correctly.', async () => {
     expect(wrapper.find('textarea')).toBeTruthy;
     expect(wrapper.find('button[type="submit"]')).toBeTruthy;
 });

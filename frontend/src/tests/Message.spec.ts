@@ -1,9 +1,9 @@
 import { test, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Message from '../components/Message.vue';
+import MessageItem from '../components/MessageItem.vue';
 
-test('Component Message mounts correctly.', async () => {
-    expect(Message).toBeTruthy();
+test('Component MessageItem mounts correctly.', async () => {
+    expect(MessageItem).toBeTruthy();
     const mockAddReact = vi.fn();
     const mockProps = {
             message: {
@@ -18,7 +18,7 @@ test('Component Message mounts correctly.', async () => {
             },
             addReact: mockAddReact
         }
-    const wrapper = mount(Message, {
+    const wrapper = mount(MessageItem, {
         props: mockProps
     });
     expect(wrapper.get('.senderName').text()).toEqual(mockProps.message.author_name);
@@ -27,7 +27,7 @@ test('Component Message mounts correctly.', async () => {
 })
 
 test('Function addReact fires correctly.', async () => {
-    expect(Message).toBeTruthy();
+    expect(MessageItem).toBeTruthy();
     const mockAddReact = vi.fn();
     const mockProps = {
             message: {
@@ -42,7 +42,7 @@ test('Function addReact fires correctly.', async () => {
             },
             addReact: mockAddReact
         }
-    const wrapper = mount(Message, {
+    const wrapper = mount(MessageItem, {
         props: mockProps
     });
     wrapper.get('.addReact').trigger('click');

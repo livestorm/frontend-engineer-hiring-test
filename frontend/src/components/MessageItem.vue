@@ -5,7 +5,7 @@ import type { messageInterface } from '../types/message';
 
 const { message, addReact } = defineProps<{
     message: messageInterface,
-    addReact: Function
+    addReact: (id: number, react: string) => void
 }>()
 
 const reactDrawerOpen: Ref<boolean> = ref(false)
@@ -24,7 +24,6 @@ const reactDrawerOpen: Ref<boolean> = ref(false)
         </div>
         <div class="messageWrap" v-else>
             <div class="senderProfilePic">
-                <!-- #TODO: It'd be good if the back-end served a profile photo -->
                 <span>
                     {{ message.author_name.charAt(0) }}
                 </span>
@@ -38,17 +37,16 @@ const reactDrawerOpen: Ref<boolean> = ref(false)
                 <div class="messageBody">{{ message.text }}</div>
             </div>
         </div>
-        <!-- Reacting to your own messages is cringe -->
         <div class="reacts" v-if="message.author_name !== 'client'">
             <div
                 class="highlight"
                 v-for="reaction in Object.keys(message.reactions)"
+                :key="reaction"
             >
                 {{ reaction }}{{ message.reactions[reaction]!.length > 1 ? ' ' + message.reactions[reaction]!.length : '' }}
             </div>
             <Transition>    
                 <div v-show="reactDrawerOpen" class="emojisToAdd">
-                    <!-- #TODO: Reaction drawer -->
                     <button class="ghost" @click="addReact(message.id, '👍')">👍</button>
                     <button class="ghost" @click="addReact(message.id, '👀')">👀</button>
                     <button class="ghost" @click="addReact(message.id, '🤣')">🤣</button>
