@@ -76,12 +76,13 @@ onBeforeUnmount(() => {
       v-for="reaction in reactionSummaries"
       :key="reaction.emoji"
       class="reaction-chip"
+      :class="{ 'reaction-chip--single': reaction.count === 1 }"
       type="button"
-      :aria-label="`Toggle ${reaction.emoji} reaction`"
+      :aria-label="`Toggle ${reaction.emoji} reaction, ${reaction.count} ${reaction.count === 1 ? 'reaction' : 'reactions'}`"
       @click="toggleReaction(reaction.emoji)"
     >
-      <span aria-hidden="true">{{ reaction.emoji }}</span>
-      <span>{{ reaction.count }}</span>
+      <span class="reaction-chip__emoji" aria-hidden="true">{{ reaction.emoji }}</span>
+      <span v-if="reaction.count > 1" class="reaction-chip__count">{{ reaction.count }}</span>
     </button>
 
     <div class="reaction-picker">

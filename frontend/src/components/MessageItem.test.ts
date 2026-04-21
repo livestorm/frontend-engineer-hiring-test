@@ -1,9 +1,14 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { COMMON_REACTIONS } from '../types/chat'
 import MessageItem from './MessageItem.vue'
 
 describe('MessageItem', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders message author, avatar, text, timestamp, and reactions', () => {
     const nowInSeconds = Math.floor(Date.now() / 1000)
     const wrapper = mount(MessageItem, {
@@ -30,6 +35,52 @@ describe('MessageItem', () => {
     expect(wrapper.text()).toContain('😂')
     expect(wrapper.text()).toContain('2')
     expect(wrapper.text()).toContain('👏')
+  })
+
+  it('updates Just now to absolute time after one minute', async () => {
+    const messageDate = new Date(2026, 3, 21, 16, 5, 56)
+
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 3, 21, 16, 6, 40))
+
+    const wrapper = mount(MessageItem, {
+      props: {
+        message: {
+          id: 'message-1',
+          text: 'Glad to be here!',
+          author_id: 'user-1',
+          author_name: 'Emma Smith',
+          created_at: messageDate.getTime() / 1000,
+          reactions: {},
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Just now')
+
+    vi.advanceTimersByTime(17_000)
+    await nextTick()
+
+    expect(wrapper.text()).toContain('16:05')
+    expect(wrapper.text()).not.toContain('Just now')
+  })
+
+  it('renders the organizer badge next to the author name', () => {
+    const wrapper = mount(MessageItem, {
+      props: {
+        isOrganizer: true,
+        message: {
+          id: 'message-1',
+          text: 'Welcome everyone',
+          author_id: 'user-1',
+          author_name: 'Emma Smith',
+          created_at: Math.floor(Date.now() / 1000),
+          reactions: {},
+        },
+      },
+    })
+
+    expect(wrapper.get('.message-item__organizer-badge').text()).toBe('Organizer')
   })
 
   it('emits reaction toggles from the reaction bar', async () => {

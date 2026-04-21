@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { COMMON_REACTIONS } from '../types/chat'
 import type { ChatMessage } from '../types/chat'
 import {
@@ -12,13 +12,15 @@ import ReactionBar from './ReactionBar.vue'
 
 const props = defineProps<{
   message: ChatMessage
+  isOrganizer?: boolean
 }>()
 
 const emit = defineEmits<{
   toggleReaction: [emoji: string]
 }>()
 
-const sentAt = computed(() => formatMessageTime(props.message.created_at))
+const currentTime = ref(new Date())
+const sentAt = computed(() => formatMessageTime(props.message.created_at, currentTime.value))
 const textSegments = computed(() => getMessageTextSegments(props.message.text))
 const reactionSummaries = computed(() => getReactionSummaries(props.message.reactions))
 const avatarUrl = computed(() => getAvatarUrlForAuthor(props.message.author_name))
@@ -26,6 +28,30 @@ const hasReactions = computed(() => reactionSummaries.value.length > 0)
 const isReactionPickerOpen = ref(false)
 const areQuickReactionsSuppressed = ref(false)
 const quickReactions = COMMON_REACTIONS.slice(0, 5)
+let timestampUpdateTimer: ReturnType<typeof window.setTimeout> | null = null
+
+function clearTimestampUpdateTimer(): void {
+  if (timestampUpdateTimer) {
+    window.clearTimeout(timestampUpdateTimer)
+    timestampUpdateTimer = null
+  }
+}
+
+function refreshTimestamp(): void {
+  currentTime.value = new Date()
+  scheduleTimestampUpdate()
+}
+
+function scheduleTimestampUpdate(): void {
+  clearTimestampUpdateTimer()
+
+  const millisecondsUntilAbsoluteTime =
+    props.message.created_at * 1000 + 60_000 - currentTime.value.getTime()
+
+  if (millisecondsUntilAbsoluteTime > 0) {
+    timestampUpdateTimer = window.setTimeout(refreshTimestamp, millisecondsUntilAbsoluteTime + 100)
+  }
+}
 
 function toggleQuickReaction(emoji: string, event: MouseEvent): void {
   emit('toggleReaction', emoji)
@@ -43,6 +69,19 @@ function handleReactionPickerOpenChange(isOpen: boolean): void {
     areQuickReactionsSuppressed.value = true
   }
 }
+
+watch(
+  () => props.message.created_at,
+  () => {
+    currentTime.value = new Date()
+    scheduleTimestampUpdate()
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  clearTimestampUpdateTimer()
+})
 </script>
 
 <template>
@@ -85,6 +124,7 @@ function handleReactionPickerOpenChange(isOpen: boolean): void {
 
       <header class="message-item__meta">
         <strong>{{ message.author_name }}</strong>
+        <span v-if="isOrganizer" class="message-item__organizer-badge">Organizer</span>
         <time :datetime="new Date(message.created_at * 1000).toISOString()">{{ sentAt }}</time>
       </header>
 

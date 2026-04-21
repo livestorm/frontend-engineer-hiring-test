@@ -33,7 +33,7 @@ export function formatMessageTime(timestampInSeconds: number, now = new Date()):
     return new Intl.DateTimeFormat('en', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hourCycle: 'h23',
     }).format(messageDate)
   }
 
@@ -42,7 +42,7 @@ export function formatMessageTime(timestampInSeconds: number, now = new Date()):
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
+    hourCycle: 'h23',
   }).format(messageDate)
 }
 

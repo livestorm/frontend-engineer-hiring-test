@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import type { ChatMessage } from '../types/chat'
 import MessageItem from './MessageItem.vue'
 
@@ -12,6 +12,9 @@ const emit = defineEmits<{
 }>()
 
 const listElement = ref<HTMLElement | null>(null)
+const organizerAuthorId = computed(
+  () => props.messages.find((message) => message.author_id !== 'system')?.author_id ?? '',
+)
 let shouldStickToBottom = true
 
 function isNearBottom(element: HTMLElement): boolean {
@@ -46,6 +49,7 @@ watch(
       v-for="message in messages"
       :key="message.id"
       :message="message"
+      :is-organizer="message.author_id === organizerAuthorId"
       @toggle-reaction="(emoji) => emit('toggleReaction', message.id, emoji)"
     />
   </div>

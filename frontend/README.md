@@ -2,6 +2,12 @@
 
 Vue 3 + TypeScript implementation of the Livestorm realtime chat component.
 
+## Demo
+
+<video src="./public/screenshot.mp4" controls width="360"></video>
+
+[Open demo video](./public/screenshot.mp4)
+
 ## Setup
 
 Install dependencies from the frontend folder:
@@ -53,7 +59,7 @@ Messages are stored as a `Map` plus ordered id list and capped to the backend's 
 - Sending is not optimistic. The backend does not accept a client-generated message id, so the UI waits for the server broadcast to avoid duplicate or unreconciled messages.
 - Reaction highlighting for the current user is intentionally omitted because the backend does not expose the active `user_id` in a handshake.
 - Existing reaction chips stay visible; empty-message add-reaction controls are muted until hover/focus on pointer devices to avoid noisy repeated icons.
-- The screenshot's organizer badge is not rendered from live data because the message schema has no role field.
+- The organizer badge is inferred from the first non-system message author because the message schema has no role field.
 - The composer trims whitespace, blocks empty messages, enforces the backend's 500-byte validation rule, sends on Enter, and preserves Shift+Enter for multiline drafts.
 
 ## Testing
