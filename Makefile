@@ -2,27 +2,27 @@
 
 start:
 	@echo "Starting chat backend..."
-	docker-compose up --build
+	docker compose up --build
 
 stop:
 	@echo "Stopping chat backend..."
-	docker-compose down
+	docker compose down
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 clean:
 	@echo "Cleaning up..."
-	docker-compose down -v --remove-orphans
+	docker compose down -v --remove-orphans
 	docker system prune -f
 
 start-stress:
 	@echo "Starting chat backend in stress mode (10 msg/sec)..."
-	MOCK_MODE=stress docker-compose up --build
+	MOCK_MODE=stress docker compose up --build
 
 start-extreme:
 	@echo "Starting chat backend in extreme mode (50 msg/sec)..."
-	MOCK_MODE=extreme docker-compose up --build
+	MOCK_MODE=extreme docker compose up --build
 
 help:
 	@echo "Available commands:"
