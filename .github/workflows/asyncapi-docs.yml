@@ -23,7 +23,7 @@ jobs:
       uses: asyncapi/cli@v3.5.2
       with:
         filepath: backend/asyncapi.yaml
-        template: '@asyncapi/markdown-template@latest'
+        template: '@asyncapi/markdown-template@1.6.7'
         output: generated-html
     
     - name: Rename to index for Jekyll
